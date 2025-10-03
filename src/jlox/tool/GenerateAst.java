@@ -33,7 +33,14 @@ public class GenerateAst {
         writer.println("    }");
         writer.println();
         fieldsList.forEach(str -> writer.printf("    %s;\n", str));
+        writer.println();
+        writer.println("    @Override");
+        writer.println("    <R> R accept(Visitor<R> visitor) {");
+        writer.printf("      return visitor.visit%s%s(this);\n", className, baseName);
+        writer.println("    }");
         writer.println("  }");
+
+
     }
 
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
@@ -43,6 +50,9 @@ public class GenerateAst {
         writer.println();
         writer.println("import java.util.List;");
         writer.println("abstract class " + baseName + " {");
+        defineVisitor(writer, baseName, types);
+        writer.println();
+        writer.println("  abstract <R> R accept(Visitor<R> visitor);");
         for (String type : types) {
             String className = type.split(":")[0].trim();
             String fields = type.split(":")[1].trim();
@@ -50,5 +60,14 @@ public class GenerateAst {
         }
         writer.println("}");
         writer.close();
+    }
+
+    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
+        writer.println("  interface Visitor<R> {");
+        for (String type : types) {
+            String typeName = type.split(":")[0].trim();
+            writer.printf("    R visit%s%s(%s %s);\n", typeName, baseName, typeName, baseName.toLowerCase());
+        }
+        writer.println("  }");
     }
 }
