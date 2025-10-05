@@ -49,7 +49,7 @@ public class Scanner {
             scanToken();
         }
         tokens.add(new Token(TokenType.EOF, "", null, line));
-        return null;
+        return tokens;
     }
 
     private char advance() {
